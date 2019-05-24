@@ -38,5 +38,4 @@ dependencies {
     testCompile ('org.spockframework:spock-core:1.1-groovy-2.4') {
         exclude group: 'org.codehaus.groovy'
     }
-    testCompile 'com.praqma:jenkins-pipeline-test-library:1.0.0'
 }
