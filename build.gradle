@@ -56,23 +56,23 @@ dependencies {
     integrationTestImplementation('org.spockframework:spock-core:1.1-groovy-2.4')
 }
 
-compileGroovy {
-    // Create temp file.
-    File temp = File.createTempFile("config", ".groovy");
-
-    // Delete temp file when program exits.
-    temp.deleteOnExit();
-
-    // Write to temp file
-    BufferedWriter out = new BufferedWriter(new FileWriter(temp));
-    out.write("""\
-        withConfig(configuration) {
-            configuration.setDisabledGlobalASTTransformations(['groovy.grape.GrabAnnotationTransformation'] as Set)
-        }
-    """.stripIndent());
-    out.close();
-    groovyOptions.configurationScript = temp
-}
+//compileGroovy {
+//    // Create temp file.
+//    File temp = File.createTempFile("config", ".groovy");
+//
+//    // Delete temp file when program exits.
+//    temp.deleteOnExit();
+//
+//    // Write to temp file
+//    BufferedWriter out = new BufferedWriter(new FileWriter(temp));
+//    out.write("""\
+//        withConfig(configuration) {
+//            configuration.setDisabledGlobalASTTransformations(['groovy.grape.GrabAnnotationTransformation'] as Set)
+//        }
+//    """.stripIndent());
+//    out.close();
+//    groovyOptions.configurationScript = temp
+//}
 
 
 tasks.create('copyVars', Copy) {

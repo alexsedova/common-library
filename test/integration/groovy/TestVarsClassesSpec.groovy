@@ -44,7 +44,7 @@ class TestVarsClassesSpec extends Specification {
         GlobalLibraries.get().setLibraries(Collections.singletonList(localLibrary))
     }
 
-    void "run setBuildEnv"() {
+    void "run script from the same local library"() {
         when:
         CpsFlowDefinition flow = new CpsFlowDefinition('''
                 import setBuildEnv
@@ -58,7 +58,44 @@ class TestVarsClassesSpec extends Specification {
         j.assertLogContains('here', result)
     }
 
+    void "run script not from library"() {
+        when:
+        CpsFlowDefinition flow = new CpsFlowDefinition('''
+                import setBuildEnv
+                setBuildEnv()'''.stripIndent(), true)
+        WorkflowJob workflowJob = j.createProject(WorkflowJob, 'project')
+        workflowJob.definition = flow
+
+        then:
+        WorkflowRun result = j.buildAndAssertSuccess(workflowJob)
+        println result.log
+        j.assertLogContains('here', result)
+    }
+
+    // For testing checkout scm required miltibranch pipeline job
     void "run checkout and clone"() {
+        given:
+        sampleRepo.init()
+        sampleRepo.write("Jenkinsfile", "echo \"branch=\${env.BRANCH_NAME}\"; node {checkoutClone([:])}")
+        sampleRepo.write("file", "initial content")
+        sampleRepo.git("add", "Jenkinsfile")
+        sampleRepo.git("commit", "--all", "--message=flow")
+
+        WorkflowMultiBranchProject mp = j.createProject(WorkflowMultiBranchProject, 'project')
+        mp.getSourcesList().add(new BranchSource(new GitSCMSource(null, sampleRepo.toString(), "", "*", "", false), new DefaultBranchPropertyStrategy(new BranchProperty[0])));
+
+        when:
+        WorkflowJob p = scheduleAndFindBranchProject(mp, "master")
+
+        then:
+        assertEquals(new GitBranchSCMHead("master"), SCMHead.HeadByItem.findHead(p));
+        assertEquals(1, mp.getItems().size());
+        j.waitUntilNoActivity();
+        WorkflowRun b1 = p.getLastBuild();
+        assertEquals(1, b1.getNumber());
+    }
+
+    void "run test scm"() {
         given:
         sampleRepo.init()
         sampleRepo.write("Jenkinsfile", "echo \"branch=\${env.BRANCH_NAME}\"; node {checkout scm; echo readFile('file')}")
