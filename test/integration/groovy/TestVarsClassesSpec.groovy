@@ -18,6 +18,9 @@ import jenkins.scm.api.SCMHead
 import org.junit.Rule
 import spock.lang.Specification
 import org.jvnet.hudson.test.JenkinsRule
+
+import java.nio.file.Path
+
 import static org.junit.Assert.*
 
 import javax.annotation.Nonnull
@@ -41,7 +44,18 @@ class TestVarsClassesSpec extends Specification {
         localLibrary.implicit = true
         localLibrary.defaultVersion = 'master'
         localLibrary.allowVersionOverride = true
-        GlobalLibraries.get().setLibraries(Collections.singletonList(localLibrary))
+        //GlobalLibraries.get().setLibraries(Collections.singletonList(localLibrary))
+
+        // register another library from the remote from build/ folder
+        Path pathToLibrary = new File('build/test-library').toPath()
+        final LibraryRetriever retrieverTwo = new LocalLibraryRetriever(pathToLibrary)
+        final LibraryConfiguration localLibraryTwo =
+                new LibraryConfiguration('test-library', retrieverTwo)
+        localLibraryTwo.implicit = true
+        localLibraryTwo.defaultVersion = 'master'
+        localLibraryTwo.allowVersionOverride = true
+        GlobalLibraries.get().setLibraries([localLibrary, localLibraryTwo])
+
     }
 
     void "run script from the same local library"() {
@@ -58,18 +72,17 @@ class TestVarsClassesSpec extends Specification {
         j.assertLogContains('here', result)
     }
 
-    void "run script not from library"() {
+    void "run script from another library"() {
         when:
         CpsFlowDefinition flow = new CpsFlowDefinition('''
-                import setBuildEnv
-                setBuildEnv()'''.stripIndent(), true)
+                fetcher()'''.stripIndent(), true)
         WorkflowJob workflowJob = j.createProject(WorkflowJob, 'project')
         workflowJob.definition = flow
 
         then:
         WorkflowRun result = j.buildAndAssertSuccess(workflowJob)
         println result.log
-        j.assertLogContains('here', result)
+        j.assertLogContains('fetcher', result)
     }
 
     // For testing checkout scm required miltibranch pipeline job
