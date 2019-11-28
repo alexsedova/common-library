@@ -5,3 +5,7 @@ gradle
 gradle*
 *.bat
 *.xml
+bin/
+.classpath
+.project
+.settings/

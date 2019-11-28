@@ -1,15 +1,15 @@
-def call(Map parameters = [:]) {
+def call(Map params = [:]) {
     checkout ([$class: 'GitSCM',
-               branches: [[name: parameters.get('branchName', '*/**')]],
+               branches: [[name: params.get('branchName', '*/**')]],
                doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
                extensions: [[$class: 'LocalBranch'], [$class: 'CloneOption', noTags: false, shallow: false, depth: 0, reference: '']],
-               userRemoteConfigs: getCustomScmPath(parameters)
+               userRemoteConfigs: getCustomScmPath(params)
     ])
 }
 
-def getCustomScmPath(Map parameters = [:]) {
-    if (parameters.containsKey('vcsPath') && parameters.containsKey('credentialsId')) {
-        return [[url: parameters.get('vcsPath'), credentialsId: parameters.get('credentialsId')]]
+def getCustomScmPath(Map params = [:]) {
+    if (params.containsKey('vcsPath') && params.containsKey('credentialsId')) {
+        return [[url: params.get('vcsPath'), credentialsId: params.get('credentialsId')]]
     }
     return scm.userRemoteConfigs
 }
