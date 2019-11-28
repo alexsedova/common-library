@@ -6,5 +6,6 @@ def call(Map params = [:]) {
     def args = params.get('args')
     new Validation().validateBuildTool(tool)
     def utils = new jenkins.utils.Utilities()
-    utils.runTask(tool, task, args)
+    //utils.runTask(tool, task, args)
+    echo utils.runBuild('master').get('test')
 }

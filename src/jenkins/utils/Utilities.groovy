@@ -7,13 +7,15 @@ class Utilities implements Serializable {
     Utilities(steps) { this.steps = steps }
 
     def runBuild(branchName) {
-        String testStr = ''
+        String testStr = 'test'
+        Map map = [:]
+        map.put('test', testStr)
         if (branchName == 'master') {
-            steps.sh 'We do not run any builds on master'
+            //steps.sh 'We do not run any builds on master'
         } else {
-            steps.sh 'gradle build'
+            //steps.sh 'gradle build'
         }
-        return 'No build will be run'
+        return map
     }
 
     def runTask(tool, task, args) {
