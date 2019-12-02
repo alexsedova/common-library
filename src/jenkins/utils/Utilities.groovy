@@ -1,4 +1,7 @@
 package jenkins.utils
+
+import groovy.json.JsonSlurper
+
 /**
  *
  */
@@ -17,8 +20,10 @@ class Utilities implements Serializable {
         }
         return map
     }
-
-    def runTask(tool, task, args) {
-
+    // This method is always have to be approved
+    def readJson() {
+        def text = "{\"class\":\"A\"}"
+        def json = new JsonSlurper().parseText(text)
+        return json
     }
 }
